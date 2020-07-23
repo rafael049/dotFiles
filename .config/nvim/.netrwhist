@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =6
+let g:netrw_dirhist_6='/media/Rafael/Unifei/7º Periodo/MAT013/semana2_julho'
+let g:netrw_dirhist_5='/home/rafael049/.config/alacritty'
+let g:netrw_dirhist_4='/home/rafael049'
+let g:netrw_dirhist_3='/media/Rafael/Programacao/Haskell/testes/sdl_teste/src'
+let g:netrw_dirhist_2='/media/Rafael/Programacao/Haskell/testes/sdl_teste'
+let g:netrw_dirhist_1='/home/rafael049/.opt/xmonad/src/XMonad'
+let g:netrw_dirhist_0='/home/rafael049'
+let g:netrw_dirhist_9='/home/rafael049/.gradle'
+let g:netrw_dirhist_8='/home/rafael049'
+let g:netrw_dirhist_7='/home/rafael049/.gradle'

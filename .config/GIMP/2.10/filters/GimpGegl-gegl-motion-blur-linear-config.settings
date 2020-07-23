@@ -1,0 +1,12 @@
+# settings
+
+(GimpGegl-gegl-motion-blur-linear-config "2020-07-21 16:35:43"
+    (time 1595360143)
+    (length 10.58)
+    (angle -56.003540851749506))
+(GimpGegl-gegl-motion-blur-linear-config "2020-07-20 15:41:41"
+    (time 1595270501)
+    (length 10)
+    (angle -64.983106521900083))
+
+# end of settings

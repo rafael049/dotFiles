@@ -1,0 +1,53 @@
+# Plugins-------------
+source "%val{config}/plugins/plug.kak/rc/plug.kak"
+
+# Parinfer
+plug "eraserhd/parinfer-rust" do %{
+    cargo install --force --path .
+} config %{
+    hook global WinSetOption filetype=(clojure|lisp|scheme|racket) %{
+        parinfer-enable-window -smart
+    }
+}
+# Verilog Support
+plug "rafael049/kakoune-verilog"
+
+# Powerline
+plug "andreyorst/powerline.kak"defer powerline %{
+    powerline-separator none
+    powerline-theme palenight
+
+} config %{
+        powerline-start
+}
+
+
+# Options -----
+set-option global autoreload yes
+set-option global scrolloff 3,5
+set-option global tabstop 4
+set-option global indentwidth 4
+
+# Highlighters
+add-highlighter global/number-lines number-lines -relative -hlcursor
+add-highlighter global/show-matching show-matching
+
+
+# Colorscheme
+colorscheme palenight
+
+# Mappings
+map global normal <c-q> ':quit<ret>'
+map global normal <c-a-q> ':quit<ret>'
+map global normal <c-s> ':write<ret>'
+
+map global normal 0 gi
+
+
+# kak-lsp
+eval %sh{kak-lsp --kakoune -s $kak_session}
+hook global WinSetOption filetype=(rust|python|go|javascript|typescript|c|cpp) %{
+        lsp-enable-window
+}
+lsp-auto-hover-enable # enable hover
+set global lsp_hover_anchor true
