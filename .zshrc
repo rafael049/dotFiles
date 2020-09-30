@@ -72,7 +72,11 @@ cd "$AUTOCD"
 #----------------------
 #-- Syntax Highlight --
 #----------------------
-source /home/rafael049/.config/zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+#----------------------
+#-- Auto Suggestions --
+#----------------------
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 
 #-------------
@@ -80,6 +84,7 @@ source /home/rafael049/.config/zsh/zsh-syntax-highlighting/zsh-syntax-highlighti
 #-------------
 alias ls='exa -la --group-directories-first'
 alias rm='rm -i'
+alias rmm='rmtrash'
 alias mv='mv -i'
 alias chmod='chmod --preserve-root'
 alias reboot='sudo systemctl reboot now'
@@ -104,3 +109,11 @@ PER="/media/Rafael/Unifei/7º Periodo"
 #--------------------
 export VISUAL="/usr/bin/nvim"
 export EDITOR="$VISUAL"
+#--------------------
+#-- Default Pager  --
+#--------------------
+export PAGER="nvimpager"
+#--------------
+#-- Qt theme --
+#--------------
+export QT_QPA_PLATFORMTHEME=qt5ct

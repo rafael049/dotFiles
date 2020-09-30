@@ -1,32 +1,23 @@
 # Plugins-------------
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 
-# Parinfer
-plug "eraserhd/parinfer-rust" do %{
-    cargo install --force --path .
-} config %{
-    hook global WinSetOption filetype=(clojure|lisp|scheme|racket) %{
-        parinfer-enable-window -smart
-    }
-}
 # Verilog Support
 plug "rafael049/kakoune-verilog"
-
-# Powerline
-plug "andreyorst/powerline.kak"defer powerline %{
-    powerline-separator none
-    powerline-theme palenight
-
-} config %{
-        powerline-start
-}
-
+# Smart tab
+plug "andreyorst/smarttab.kak"
+# prelude
+plug "lexherbo2/prelude.kak"
+# auto-pair
+plug "alexherbo2/auto-pairs.kak"
+# rainbow pair
+plug 'jjk96/kakoune-rainbow'
 
 # Options -----
 set-option global autoreload yes
 set-option global scrolloff 3,5
 set-option global tabstop 4
 set-option global indentwidth 4
+#set-option global rainbow-enable yes
 
 # Highlighters
 add-highlighter global/number-lines number-lines -relative -hlcursor
@@ -42,6 +33,7 @@ map global normal <c-a-q> ':quit<ret>'
 map global normal <c-s> ':write<ret>'
 
 map global normal 0 gi
+map global normal a li
 
 
 # kak-lsp
@@ -51,3 +43,6 @@ hook global WinSetOption filetype=(rust|python|go|javascript|typescript|c|cpp) %
 }
 lsp-auto-hover-enable # enable hover
 set global lsp_hover_anchor true
+set global lsp_hover_max_lines 40
+map global user -docstring 'Rename Symbol' r ':lsp-rename-prompt<ret>'
+
