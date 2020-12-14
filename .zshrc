@@ -90,9 +90,9 @@ alias chmod='chmod --preserve-root'
 alias reboot='sudo systemctl reboot now'
 alias suspend='sudo systemctl suspend'
 alias py='python3'
-alias ghc='stack ghc'
-alias ghci='stack ghci'
-alias runhaskell='stack runhaskell'
+#alias ghc='stack ghc'
+#alias ghci='stack ghci'
+#alias runhaskell='stack runhaskell'
 
 alias xmc='vim ~/.xmonad/xmonad.hs ~/.config/xmobar/xmobarrc -p'
 
@@ -102,7 +102,7 @@ alias xmc='vim ~/.xmonad/xmonad.hs ~/.config/xmobar/xmobarrc -p'
 PROG="/media/Rafael/Programacao/"
 RAF="/media/Rafael/"
 UNI="/media/Rafael/Unifei"
-PER="/media/Rafael/Unifei/7º Periodo"
+PER="/media/Rafael/Unifei/8º Periodo"
 
 #--------------------
 #-- Default Editor --
@@ -112,7 +112,7 @@ export EDITOR="$VISUAL"
 #--------------------
 #-- Default Pager  --
 #--------------------
-export PAGER="nvimpager"
+#export PAGER="nvimpager"
 #--------------
 #-- Qt theme --
 #--------------

@@ -6,11 +6,15 @@ plug "rafael049/kakoune-verilog"
 # Smart tab
 plug "andreyorst/smarttab.kak"
 # prelude
-plug "lexherbo2/prelude.kak"
+#plug "lexherbo2/prelude.kak"
 # auto-pair
 plug "alexherbo2/auto-pairs.kak"
 # rainbow pair
 plug 'jjk96/kakoune-rainbow'
+# kak-lsp
+plug "kak-lsp/kak-lsp" do %{
+    cargo install --locked --force --path .
+}
 
 # Options -----
 set-option global autoreload yes

@@ -31,12 +31,12 @@ import XMonad.Util.Run(spawnPipe, safeSpawn)
 xmobarrc = "/home/rafael049/.config/xmobar/xmobarrc.hs"
 
 -- Applications
-launcher = "/usr/bin/dmenu_run"
-browser  = "waterfox"
+launcher = "/usr/bin/rofi -show run"
+browser  = "brave"
 myTerminal = "alacritty"
 myFileManager = "ranger"
+myGUIFileManager = "pcmanfm"
 myMusicPlayer = "LD_PRELOAD=/usr/lib/libcurl.so.4:/home/rafael049/.opt/spotifywm/spotifywm.so /usr/bin/spotify"
-screenPrint = "scrot -s -e 'mv $f ~/Images/'"
 
 
 -- Scratchpads
@@ -45,6 +45,7 @@ scratchpads =
     , NS "terminal_scratchpad" (myTerminal ++ " -t terminal_scratchpad") (title =? "terminal_scratchpad") (customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3) )
     , NS "music"  (myMusicPlayer) (className =? "Spotify")  (customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3) )
     , NS "ranger_sp" (myTerminal ++ " -t ranger_sp -e ranger ") (title =? "ranger_sp") (customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3) )
+    , NS "pcmanfm_sp" (myGUIFileManager) (className =? "Pcmanfm") (customFloating $ W.RationalRect (0/6) (1/6) (2/3) (2/3) )
     ]
 
 -- Apparence
@@ -78,11 +79,13 @@ myLayout =
 
 myManageHook =
     namedScratchpadManageHook scratchpads <+>
-    composeAll [ className =? "mpv"        --> doFloat
-               , className =? "GNU Octave" --> doFloat
-               , className =? "Spotify"    --> doFloat
-               , className =? "Gimp"       --> doFloat
-               --, isFullscreen              --> doFullFloat
+    composeAll [ className =? "mpv"          --> doFloat
+               , className =? "GNU Octave"   --> doFloat
+               , className =? "Spotify"      --> doFloat
+               , className =? "Gimp"         --> doFloat
+               , className =? "pavucontrol"  --> doFloat
+               , className =? "trabalho_1"   --> doFloat
+               , className =? "OpenGL 2D"    --> doFloat
                ]
 
 -- Event Hook
@@ -152,8 +155,11 @@ myKeys conf@( XConfig {XMonad.modMask = modMask}) = M.fromList $
     ,((modMask, xK_m),
     namedScratchpadAction scratchpads "music")
 
-    ,((modMask .|. shiftMask, xK_z),
+    ,((modMask, xK_z),
     namedScratchpadAction scratchpads "ranger_sp")
+
+    ,((modMask .|. shiftMask, xK_z),
+    namedScratchpadAction scratchpads "pcmanfm_sp")
     ------------------------
     -- Media key bindings --
     ------------------------
@@ -351,10 +357,9 @@ myKeys conf@( XConfig {XMonad.modMask = modMask}) = M.fromList $
         , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
 
 main = do
-    xmproc <- spawnPipe ("/home/rafael049/.local/bin/xmobar " ++ xmobarrc)
+    --xmproc <- spawnPipe ("/home/rafael049/.local/bin/xmobar " ++ xmobarrc)
+    spawn "polybar bar1"
 
-    -- Use external monitor if available
-    --spawn "~/.scripts/setupMonitors.sh &"
     -- Adjust keyboard
     spawn "setxkbmap -option caps:escape"
     -- Start Compositor
@@ -373,13 +378,13 @@ main = do
             { manageHook      = manageDocks <+> myManageHook
             , handleEventHook = myHandleEventHook
             , layoutHook      = myLayout
-            , logHook         = --myLogHook
-                dynamicLogWithPP xmobarPP
-                                    { ppOutput  = hPutStrLn xmproc
-                                    , ppTitle   = xmobarColor myXmobarWindowTitleColor "" . shorten 100
-                                    , ppCurrent = xmobarColor myXmobarCurrentWorkspaceColor ""
-                                    , ppSep     = "   "
-                                    }
+            , logHook         = myLogHook
+                --dynamicLogWithPP xmobarPP
+                --                    { ppOutput  = hPutStrLn xmproc
+                --                    , ppTitle   = xmobarColor myXmobarWindowTitleColor "" . shorten 100
+                --                    , ppCurrent = xmobarColor myXmobarCurrentWorkspaceColor ""
+                --                    , ppSep     = "   "
+                --                    }
             , modMask    = mod4Mask
             , keys       = myKeys
             , terminal   = myTerminal
