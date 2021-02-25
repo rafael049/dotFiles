@@ -47,24 +47,20 @@
 ** Line numering
 
  #+begin_src emacs-lisp
-   ;; Disable line numbers in some modes
-   (dolist (mode '(org-mode-hook
-		   dired-mode-hook
-		   term-mode-hook
-		   eww-mode-hook
-		   pdf-view-mode-hook
-		   eshell-mode-hook))
+
+   (column-number-mode)
+
+   ;; Enable line numbers for some modes
+   (dolist (mode '(text-mode-hook
+                   prog-mode-hook
+                   conf-mode-hook))
+     (add-hook mode (lambda () (display-line-numbers-mode 1))))
+
+   ;; Override some modes which derive from the above
+   (dolist (mode '(org-mode-hook))
      (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
-   ;; Line numbers
-   (global-display-line-numbers-mode t)
-   (setq global-display-line-numbers 'relative)
-   (set-default 'display-line-numbers 'relative)
-
  #+end_src
 
-#+RESULTS:
-: ((font . Roboto Mono-11) (vertical-scroll-bars) (left-fringe . 10) (right-fringe . 10))
 
 ** Theme
    #+begin_src emacs-lisp
@@ -75,16 +71,19 @@
 	   doom-themes-enable-italic t)) ; if nil, italics is universally disabled
 
    #+end_src
+
 ** Status Bar
 #+begin_src emacs-lisp
 (use-package smart-mode-line)
 #+end_src
+
 ** Mode line
 #+begin_src emacs-lisp
 (use-package doom-modeline
   :ensure t
   :init (doom-modeline-mode 1))
 #+end_src
+
 * Personal Information
 #+begin_src emacs-lisp
 (setq user-full-name "Rafael Moraes"
@@ -244,6 +243,7 @@ A function to organize org-mode setup.
 #+begin_src emacs-lisp
   ;; Spaces as tabs
   (setq indent-tabs-mode nil)
+  (setq indent-tabs-mode nil)
 
 #+end_src
 ** Spelling
@@ -265,7 +265,7 @@ A function to organize org-mode setup.
     ;; Please note ispell-extra-args contains ACTUAL parameters passed to aspell
     (setq ispell-extra-args '("--sug-mode=ultra" "--lang=en_US"))))
 #+end_src
-* Search and Completion
+* Development
 ** Counsel
   #+begin_src emacs-lisp
   (use-package counsel
@@ -283,6 +283,59 @@ A function to organize org-mode setup.
   (setq ivy-use-virtual-buffers t)
   (setq ivy-count-format "(%d/%d) ")
 #+end_src
+** LSP
+#+begin_src emacs-lisp
+    (use-package lsp-mode
+      :hook (c++-mode-hook . lsp-deferred)
+      :commands (lsp lsp-deferred)
+      :init
+      (setq lsp-keymap-prefix "C-c l")
+      :config
+      (lsp-enable-which-key-integration t))
+
+  (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode)
+    :config
+    (setq lsp-ui-doc-show-with-mouse t))
+
+  ;; For Ivy
+  (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+
+  (use-package ccls
+    :ensure t
+    :config
+    (setq ccls-executable "ccls")
+    (setq lsp-prefer-flymake nil)
+    (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+    :hook ((c-mode c++-mode objc-mode) .
+           (lambda () (require 'ccls) (lsp))))
+#+end_src
+
+** C/C++ 
+#+begin_src emacs-lisp
+  (setq-default c-basic-offset 4)
+  (setq compilation-read-command nil); do not prompt
+  (setq compile-command "make run -C ..")
+  (define-key c++-mode-map [f9] #'compile)
+
+  (use-package modern-cpp-font-lock
+  :ensure t)
+#+end_src
+
+** GLSL
+#+begin_src emacs-lisp
+(use-package glsl-mode
+:ensure t)
+#+end_src
+** Projectile
+#+begin_src emacs-lisp
+      (use-package projectile
+        :config
+        (projectile-mode)
+        :bind-keymap
+        ("C-c p" . projectile-command-map))
+  (setq projectile-project-run-cmd "make run")
+#+end_src
 * Evil Mode
 #+begin_src emacs-lisp
   (use-package evil
@@ -294,6 +347,7 @@ A function to organize org-mode setup.
     :config
     (evil-mode 1)
     (define-key evil-normal-state-map (kbd "C-s") 'evil-write)
+    (define-key evil-normal-state-map (kbd "C-f") 'counsel-find-file)
     (define-key evil-normal-state-map (kbd "C-q") 'kill-current-buffer)
     (define-key evil-normal-state-map (kbd "g l") 'next-buffer)
     (define-key evil-normal-state-map (kbd "g h") 'previous-buffer)
@@ -357,4 +411,42 @@ A function to organize org-mode setup.
     "l" 'dired-find-file))
 
 (use-package dired-single)
+#+end_src
+
+* Skeletons
+
+#+begin_src emacs-lisp
+
+(define-skeleton skeleton/org-latex-abnt2
+"Org latex abnt2 skeleton" 
+""
+"#+OPTIONS: toc:nil\n"
+"#+LANGUAGE: pt-br\n"
+"#+LATEX_CLASS: article\n"
+"#+LATEX_HEADER: \\usepackage{hyperref}\n"
+"#+LATEX_HEADER: \\hypersetup{hidelinks}\n"
+"#+LATEX_HEADER: \\usepackage[alf]{abntex2cite}\n"
+"#+LATEX_HEADER: \\usepackage{times}\n"
+"#+LATEX_HEADER: \\usepackage{indentfirst}\n"
+"#+LATEX_HEADER: \\usepackage[lmargin=3cm, rmargin=2cm, tmargin=3cm, bmargin=2cm]{geometry}\n"
+"\n"
+"#+BEGIN_EXPORT latex\n"
+"\\title{"_"}\n"
+"\\author{Rafael Batista de Moraes}\n"
+"\\maketitle\n"
+"#+END_EXPORT\n"
+_
+"\n\n\n\\bibliography{ref.bib}")
+
+(define-skeleton skeleton/bib-tex
+  "Bib skeleton"
+  ""
+  "\@BOOK{"_",\n"
+  "AUTHOR=\"""\",\n"
+  "TITLE=\"\",\n"
+  "PUBLISHER=\"\",\n"
+  "YEAR=\"\",\n"
+  "}\n"
+)
+(put 'upcase-region 'disabled nil)
 #+end_src
