@@ -3,12 +3,20 @@
 
 * Emacs Startup
 #+begin_src emacs-lisp
-(setq inhibit-startup-message t)  ; Disable startup page
-(setq gc-cons-threshold 100000000) ; Set when GC is called (100MB)
+  (setq inhibit-startup-message t)  ; Disable startup page
+  (setq gc-cons-threshold 100000000) ; Set when GC is called (100MB)
+
+  ;; Disable warning pop ups from native compilation
+  (setq comp-async-report-warnings-errors nil)
+#+end_src
+
+** Debug
+#+begin_src emacs-lisp
+  (setq use-package-verbose t)
 #+end_src
 
 * Setup Melpa
-  
+
    #+begin_src emacs-lisp
      (require 'package)
 
@@ -31,17 +39,28 @@
 ** Remove Gui Elements
 
 #+begin_src emacs-lisp
-(scroll-bar-mode -1)   ; Disable scrollbar
-(tool-bar-mode -1)     ; Disable toolbar
-(tooltip-mode -1)      ; Disable tooltips
-(set-fringe-mode 10)   ; Give some breathing room
-(menu-bar-mode -1)     ; Disable the menu bar
+  (scroll-bar-mode -1)   ; Disable scrollbar
+  (tool-bar-mode -1)     ; Disable toolbar
+  (tooltip-mode -1)      ; Disable tooltips
+  (set-fringe-mode 10)   ; Give some breathing room
+  (menu-bar-mode -1)     ; Disable the menu bar
+
+ 
 #+end_src
 
 ** Font
 
 #+begin_src emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Roboto Mono-11"))
+  ;; (add-to-list 'default-frame-alist '(font . "Roboto Mono-11"))
+  (defun my/set-font-faces ()
+    (set-face-attribute 'default nil :font "Roboto Mono" :height 110))
+
+  (if (daemonp)
+      (add-hook 'after-make-frame-functions
+                (lambda (frame)
+                  (with-selected-frame frame
+                    (my/set-font-faces))))
+    (my/set-font-faces))
 #+end_src
 
 ** Line numering
@@ -61,7 +80,6 @@
      (add-hook mode (lambda () (display-line-numbers-mode 0))))
  #+end_src
 
-
 ** Theme
    #+begin_src emacs-lisp
      (use-package doom-themes
@@ -79,11 +97,29 @@
 
 ** Mode line
 #+begin_src emacs-lisp
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1))
+  (use-package doom-modeline
+    :ensure t
+    :init
+    (doom-modeline-mode 1)
+    (if (daemonp)
+        (add-hook 'after-make-frame-functions
+                  (lambda (frame)
+                  (setq doom-modeline-icon t)))
+      (setq doom-modeline-icon t)))
 #+end_src
 
+** Center page in some modes
+#+begin_src emacs-lisp
+
+  (defun my/mode-visual-fill ()
+    (setq visual-fill-column-width 140
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
+  (use-package visual-fill-column
+    :hook
+    (org-mode . my/mode-visual-fill)
+    (eww-mode . my/mode-visual-fill))
+#+end_src
 * Personal Information
 #+begin_src emacs-lisp
 (setq user-full-name "Rafael Moraes"
@@ -155,7 +191,6 @@ A function to organize org-mode setup.
        (my/org-font-setup))
 
      (use-package org-bullets
-       :after org
        :hook (org-mode . org-bullets-mode)
        :custom
        (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
@@ -164,19 +199,12 @@ A function to organize org-mode setup.
 
 *** Centering page in Org-mode
     #+begin_src emacs-lisp
-      (defun efs/org-mode-visual-fill ()
-	(setq visual-fill-column-width 100
-	      visual-fill-column-center-text t)
-	(visual-fill-column-mode 1))
 
-      (use-package visual-fill-column
-	:hook (org-mode . efs/org-mode-visual-fill))
     #+end_src
 
 *** Org-mode Bullets
     #+begin_src emacs-lisp
-       (use-package org-bullets
-      :after org
+    (use-package org-bullets
       :hook (org-mode . org-bullets-mode)
       :custom
       (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
@@ -243,7 +271,6 @@ A function to organize org-mode setup.
 #+begin_src emacs-lisp
   ;; Spaces as tabs
   (setq indent-tabs-mode nil)
-  (setq indent-tabs-mode nil)
 
 #+end_src
 ** Spelling
@@ -267,6 +294,7 @@ A function to organize org-mode setup.
 #+end_src
 * Development
 ** Counsel
+Extra functionality to Ivy
   #+begin_src emacs-lisp
   (use-package counsel
   :bind (("M-x" . counsel-M-x)
@@ -277,17 +305,19 @@ A function to organize org-mode setup.
   #+end_src
 
 ** Ivy
+Completetion Engine
 #+begin_src emacs-lisp
   (use-package ivy)
   (ivy-mode 1)  ; Activate ivy
   (setq ivy-use-virtual-buffers t)
   (setq ivy-count-format "(%d/%d) ")
 #+end_src
+
 ** LSP
 #+begin_src emacs-lisp
     (use-package lsp-mode
-      :hook (c++-mode-hook . lsp-deferred)
       :commands (lsp lsp-deferred)
+      :hook (c++-mode-hook . lsp-deferred)
       :init
       (setq lsp-keymap-prefix "C-c l")
       :config
@@ -302,6 +332,7 @@ A function to organize org-mode setup.
   (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
 
   (use-package ccls
+    :after lsp-mode
     :ensure t
     :config
     (setq ccls-executable "ccls")
@@ -314,11 +345,9 @@ A function to organize org-mode setup.
 ** C/C++ 
 #+begin_src emacs-lisp
   (setq-default c-basic-offset 4)
-  (setq compilation-read-command nil); do not prompt
-  (setq compile-command "make run -C ..")
-  (define-key c++-mode-map [f9] #'compile)
 
   (use-package modern-cpp-font-lock
+  :hook (c++-mode . modern-cpp-font-lock)
   :ensure t)
 #+end_src
 
@@ -329,13 +358,14 @@ A function to organize org-mode setup.
 #+end_src
 ** Projectile
 #+begin_src emacs-lisp
-      (use-package projectile
-        :config
-        (projectile-mode)
-        :bind-keymap
-        ("C-c p" . projectile-command-map))
+  (use-package projectile
+    :config
+    (projectile-mode)
+    :bind-keymap
+    ("C-c p" . projectile-command-map))
   (setq projectile-project-run-cmd "make run")
 #+end_src
+
 * Evil Mode
 #+begin_src emacs-lisp
   (use-package evil
@@ -374,11 +404,43 @@ A function to organize org-mode setup.
 #+begin_src emacs-lisp
 (fset 'yes-or-no-p 'y-or-n-p)
 #+end_src
+** Function to load emacs config
+#+begin_src emacs-lisp
+  (defun config-load () (find-file (expand-file-name "~/.config/emacs/emacs.org")))
+#+end_src
+
+* Eshell
+** Color
+#+begin_src emacs-lisp
+  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+  (add-to-list 'comint-output-filter-functions 'ansi-color-process-output)
+#+end_src
+** Syntax Highlight
+#+begin_src emacs-lisp
+  (use-package eshell-syntax-highlighting
+    :after esh-mode
+    :demand t ;; Install if not already installed.
+    :config
+    ;; Enable in all Eshell buffers.
+    (eshell-syntax-highlighting-global-mode +1))
+#+end_src
+
+** Prompt
+#+begin_src emacs-lisp
+#+end_src
+
+** Aliases
+#+begin_src emacs-lisp
+  (defalias 'ff 'find-file)
+  (defalias 'ffo 'find-file-other-window)
+#+end_src
+
 * Help
 
 ** Which-Key
    #+begin_src emacs-lisp
      (use-package which-key
+     :defer 0
      :init (which-key-mode)
      :diminish which-key-mode
      :config
